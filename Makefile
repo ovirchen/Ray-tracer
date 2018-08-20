@@ -41,8 +41,10 @@ $(NAME): $(OBJ)
 	@echo "\033[31mRTv1 \033[33mMAKED\033[0m"
 
 $(OBJ): $(SRCS) $(HEADERS) $(LIBS)
-	make -C libft
 	$(CC) -c $(SRCS) -I $(HEADERS)
+
+$(LIBS):
+	make -C libft
 
 clean:
 	rm -f $(OBJ)

@@ -22,7 +22,6 @@ t_figure			*ray_tracing(t_sdl *map, t_vector ray, t_vector camera)
 // printf("\traytracing\n");
 	closest = NULL;
 	// printf("%f %f %f\n", ray.x, ray.y, ray.z);
-	// ray = minus_vector(viewport, camera);
 	list = map->figure;
 	while (list != NULL)
 	{

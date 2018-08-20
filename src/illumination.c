@@ -15,7 +15,7 @@
 double		find_illumination(t_sdl *map, t_figure *figure)
 {
 	double		illumination;
-	double		dot_n_l;
+	double		dot_n_ray;
 	t_light		*list;
 	t_vector	point;
 	t_vector	ray;
@@ -34,9 +34,12 @@ double		find_illumination(t_sdl *map, t_figure *figure)
 			map->t_max = 1;
 			if (ray_tracing(map, ray, point) == NULL)
 			{
-				if ((dot_n_l = dot(minus_vector(point, figure->center), ray)) > 0)
-					illumination += list->intens * dot_n_l / (figure->r *
-						vector_len(ray));
+				// if ((dot_n_l = dot(minus_vector(point, figure->center),
+				// 	minus_vector(list->center, point))) > 0)
+				// 	illumination += list->intens * dot_n_l / (figure->r *
+				// 		vector_len(minus_vector(list->center, point)));
+				if ((dot_n_ray = dot(minus_vector(point, figure->center), ray)) > 0)
+					illumination += list->intens * dot_n_ray / (figure->r * vector_len(ray));
 			}
 		}
 		list = list->next;
