@@ -48,6 +48,7 @@ typedef struct	s_figure
 	char		type; 
 	double		r;
 	double		t;
+	int			specular;
 	t_vector	center;
 	t_vector	direct;
 	t_color		color;
@@ -105,12 +106,21 @@ t_figure		*ray_tracing(t_sdl *map, t_vector ray, t_vector camera);
 unsigned int	check_figure(t_sdl *map);
 double			dot(t_vector v1, t_vector v2);
 
+t_figure		*sphere_intersect(t_sdl *map, t_figure *list, t_figure
+	*closest, t_quadratic eq);
+t_figure		*plane_intersect(t_sdl *map, t_figure *list, t_figure
+	*closest, t_quadratic eq);
+t_figure		*celinder_intersect(t_sdl *map, t_figure *list, t_figure
+	*closest, t_quadratic eq);
+
 int				scene_1(t_sdl *map);
 
+void			normalize_vector(t_vector *v);
 void			fill_vector(t_vector *v, double x, double y, double z);
 void			fill_color(t_color *c, int r, int g, int b);
 void			fill_light(t_light *l, double intens, t_vector center, t_vector direct);
 
+t_figure		*copy_figure(t_figure *f2);
 void			add_figure(t_sdl *map, t_figure *new);
 void			add_light(t_sdl *map, t_light *new);
 

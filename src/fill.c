@@ -12,6 +12,16 @@
 
 #include "../inc/rtv1.h"
 
+void	normalize_vector(t_vector *v)
+{
+	double len;
+
+	len = sqrt(v->x * v->x + v->y * v->y + v->z * v->z);
+	v->x /= len;
+	v->y /= len;
+	v->z /= len;
+}
+
 void	fill_vector(t_vector *v, double x, double y, double z)
 {
 	v->x = x;

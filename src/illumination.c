@@ -16,10 +16,13 @@ double		find_illumination(t_sdl *map, t_figure *figure)
 {
 	double		illumination;
 	double		dot_n_ray;
+	double		m;
 	t_light		*list;
 	t_vector	point;
 	t_vector	ray;
+	t_vector	reflect;
 
+	point = plus_vector(map->camera, mult_vector(map->ray, figure->t));
 	illumination = 0.0;
 	list = map->light;
 	while (list != NULL)
@@ -28,18 +31,76 @@ double		find_illumination(t_sdl *map, t_figure *figure)
 			illumination += list->intens;
 		else if (list->type == 'p')
 		{
-			point = plus_vector(map->camera, mult_vector(map->ray, figure->t));
 			ray = minus_vector(list->center, point);
 			map->t_min = 0.0000001;
 			map->t_max = 1;
 			if (ray_tracing(map, ray, point) == NULL)
 			{
-				// if ((dot_n_l = dot(minus_vector(point, figure->center),
-				// 	minus_vector(list->center, point))) > 0)
-				// 	illumination += list->intens * dot_n_l / (figure->r *
-				// 		vector_len(minus_vector(list->center, point)));
-				if ((dot_n_ray = dot(minus_vector(point, figure->center), ray)) > 0)
-					illumination += list->intens * dot_n_ray / (figure->r * vector_len(ray));
+				if (figure->type == 's')
+				{
+					if ((dot_n_ray = dot(minus_vector(point, figure->center), ray)) > 0)
+						illumination += list->intens * dot_n_ray / (figure->r * vector_len(ray));
+					if (figure->specular > 0)
+					{
+						reflect = minus_vector(mult_vector(minus_vector(point, figure->center), 2 * dot_n_ray), ray);
+						if ((dot_n_ray = dot(reflect, mult_vector(map->ray, -1.0))) > 0)
+						{
+							illumination += list->intens * pow(dot_n_ray / (vector_len(reflect) * vector_len(map->ray)),
+								figure->specular);
+						}
+					}
+				}
+				else if (figure->type == 'p')
+				{
+					// normalize_vector(&ray);
+					dot_n_ray = dot(figure->direct, ray);
+					if (dot(ray, figure->direct) < 0)
+						dot_n_ray = dot(mult_vector(figure->direct, -1.0), ray);
+					if (dot_n_ray > 0)
+						illumination += list->intens * dot_n_ray / (vector_len(figure->direct) * vector_len(ray));
+					if (figure->specular > 0)
+					{
+						reflect = minus_vector(mult_vector(figure->direct, 2 * dot_n_ray), ray); // figure->direct -1.0
+						if (dot(ray, figure->direct) < 0)
+							reflect = minus_vector(mult_vector(mult_vector(figure->direct, -1.0), 2 * dot_n_ray), ray);
+						if ((dot_n_ray = dot(reflect, mult_vector(map->ray, -1.0))) > 0)
+						{
+							illumination += list->intens * pow(dot_n_ray / (vector_len(reflect) * vector_len(map->ray)),
+								figure->specular);
+						}
+					}
+				}
+				else if (figure->type == 'c')
+				{
+					// normalize_vector(&ray);
+					m = dot(map->ray, mult_vector(figure->direct, figure->t)) + dot(minus_vector(map->camera, figure->center), figure->direct);
+					if ((dot_n_ray = dot(minus_vector(minus_vector(point, figure->center), mult_vector(figure->direct, m)), ray)) > 0)
+						illumination += list->intens * dot_n_ray / (vector_len(figure->direct) * vector_len(ray));
+					if (figure->specular > 0)
+					{
+						reflect = minus_vector(mult_vector(minus_vector(minus_vector(point, figure->center), mult_vector(figure->direct, m)), 2 * dot_n_ray), ray);
+						if ((dot_n_ray = dot(reflect, mult_vector(map->ray, -1.0))) > 0)
+						{
+							illumination += list->intens * pow(dot_n_ray / (vector_len(reflect) * vector_len(map->ray)),
+								figure->specular);
+						}
+					}
+				}
+				else if (figure->type == 'k')
+				{
+					m = dot(map->ray, mult_vector(figure->direct, figure->t)) + dot(minus_vector(map->camera, figure->center), figure->direct);
+					if ((dot_n_ray = dot(minus_vector(minus_vector(point, figure->center), mult_vector(figure->direct, m * (1 + tan(figure->r) * tan(figure->r)))), ray)) > 0)
+						illumination += list->intens * dot_n_ray / (vector_len(figure->direct) * vector_len(ray));
+					if (figure->specular > 0)
+					{
+						reflect = minus_vector(mult_vector(minus_vector(minus_vector(point, figure->center), mult_vector(figure->direct, m)), 2 * dot_n_ray), ray);
+						if ((dot_n_ray = dot(reflect, mult_vector(map->ray, -1.0))) > 0)
+						{
+							illumination += list->intens * pow(dot_n_ray / (vector_len(reflect) * vector_len(map->ray)),
+								figure->specular);
+						}
+					}
+				}
 			}
 		}
 		list = list->next;

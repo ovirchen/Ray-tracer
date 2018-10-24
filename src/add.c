@@ -12,6 +12,20 @@
 
 #include "../inc/rtv1.h"
 
+t_figure *copy_figure(t_figure *f2)
+{
+	t_figure *f1;
+
+	f1 = (t_figure *)malloc(sizeof(t_figure));
+	f1->type = f2->type;
+	f1->r = f2->r;
+	f1->next = f2->next;
+	f1->center = f2->center;
+	fill_vector(&(f1->center), f2->center.x, f2->center.y, f2->center.z);
+	fill_color(&(f1->color), f2->color.r, f2->color.g , f2->color.b);
+	return (f1);
+}
+
 void add_figure(t_sdl *map, t_figure *new)
 {
 	t_figure *tmp;

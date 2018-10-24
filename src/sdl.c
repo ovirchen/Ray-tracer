@@ -27,7 +27,7 @@ int	sdl_init(t_sdl *map)
 	ft_memset(map->image, 0, WIN_X * WIN_Y + 1);
 	map->figure = NULL;
 	map->light = NULL;
-	fill_vector(&(map->camera), 0.0, 0.0, 1.0);
+	fill_vector(&(map->camera), 0.0, 0.0, -1.0);
 	return (0);
 }
 
