@@ -40,9 +40,10 @@ int main(int argc __attribute__((unused)), char **argv __attribute__((unused)))
 				//Quit the program
 				trigger = 0;
 			}
-			else if (map.event.type == SDL_KEYDOWN)
+			else if (map.event.type == SDL_KEYDOWN &&
+				map.event.key.keysym.sym == SDLK_ESCAPE)
 			{
-				
+				trigger = 0;
 			}
 		}
 		// draw(&map);

@@ -22,6 +22,14 @@
 
 # define WIN_X 640
 # define WIN_Y 480
+# define PI 3.141592
+# define PLANE 0
+# define SPHERE 1
+# define CELINDER 2
+# define CONE 3
+# define AMBIENT 0
+# define POINT 1
+# define DIRECT 2
 // # define MIN_T 1
 // # define MAX_T INFINITY
 
@@ -41,10 +49,6 @@ typedef struct s_color
 
 typedef struct	s_figure
 {
-/*
-** type: s - sphere, c - celinder, k - cone, p - plane
-** r - radius
-*/
 	char		type; 
 	double		r;
 	double		t;
@@ -58,9 +62,6 @@ typedef struct	s_figure
 
 typedef struct	s_light
 {
-/*
-** type: a - ambient, p - point, d - directional
-*/
 	char		type;
 	double		intens;
 	t_vector	center;
@@ -82,6 +83,7 @@ typedef struct	s_sdl
 	t_vector		camera;
 	double			t_min;
 	double			t_max;
+	t_color			angle;
 }				t_sdl;
 
 typedef struct	s_quadratic
@@ -106,11 +108,9 @@ t_figure		*ray_tracing(t_sdl *map, t_vector ray, t_vector camera);
 unsigned int	check_figure(t_sdl *map);
 double			dot(t_vector v1, t_vector v2);
 
-t_figure		*sphere_intersect(t_sdl *map, t_figure *list, t_figure
+t_figure		*figure_intersect(t_sdl *map, t_figure *list, t_figure
 	*closest, t_quadratic eq);
 t_figure		*plane_intersect(t_sdl *map, t_figure *list, t_figure
-	*closest, t_quadratic eq);
-t_figure		*celinder_intersect(t_sdl *map, t_figure *list, t_figure
 	*closest, t_quadratic eq);
 
 int				scene_1(t_sdl *map);
@@ -133,6 +133,7 @@ double			vector_len(t_vector a);
 double			find_illumination(t_sdl *map, t_figure *figure);
 t_color			color_correction(t_figure *figure, double illumination);
 
-// intersect_ray
+void			rotate(t_sdl *map, t_vector *v);
+void			rotate_all(t_sdl *map);
 
 #endif

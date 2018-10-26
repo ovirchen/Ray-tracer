@@ -21,28 +21,36 @@ double		find_illumination(t_sdl *map, t_figure *figure)
 	t_vector	point;
 	t_vector	ray;
 	t_vector	reflect;
+	t_vector	norm;
 
 	point = plus_vector(map->camera, mult_vector(map->ray, figure->t));
 	illumination = 0.0;
 	list = map->light;
 	while (list != NULL)
 	{
-		if (list->type == 'a')
+		if (list->type == AMBIENT)
 			illumination += list->intens;
-		else if (list->type == 'p')
+		else if (list->type == POINT || list->type == DIRECT)
 		{
 			ray = minus_vector(list->center, point);
 			map->t_min = 0.0000001;
 			map->t_max = 1;
+			if (list->type == DIRECT)
+			{
+				ray = minus_vector(list->direct, point);
+				// map->t_max = INFINITY;
+			}
 			if (ray_tracing(map, ray, point) == NULL)
 			{
-				if (figure->type == 's')
+				if (figure->type == SPHERE)
 				{
-					if ((dot_n_ray = dot(minus_vector(point, figure->center), ray)) > 0)
-						illumination += list->intens * dot_n_ray / (figure->r * vector_len(ray));
+					norm = minus_vector(point, figure->center);
+					normalize_vector(&norm);
+					if ((dot_n_ray = dot(norm, ray)) > 0)
+						illumination += list->intens * dot_n_ray / (vector_len(norm) * vector_len(ray));
 					if (figure->specular > 0)
 					{
-						reflect = minus_vector(mult_vector(minus_vector(point, figure->center), 2 * dot_n_ray), ray);
+						reflect = minus_vector(mult_vector(norm, 2 * dot_n_ray), ray);
 						if ((dot_n_ray = dot(reflect, mult_vector(map->ray, -1.0))) > 0)
 						{
 							illumination += list->intens * pow(dot_n_ray / (vector_len(reflect) * vector_len(map->ray)),
@@ -50,14 +58,13 @@ double		find_illumination(t_sdl *map, t_figure *figure)
 						}
 					}
 				}
-				else if (figure->type == 'p')
+				else if (figure->type == PLANE)
 				{
-					// normalize_vector(&ray);
 					dot_n_ray = dot(figure->direct, ray);
 					if (dot(ray, figure->direct) < 0)
 						dot_n_ray = dot(mult_vector(figure->direct, -1.0), ray);
 					if (dot_n_ray > 0)
-						illumination += list->intens * dot_n_ray / (vector_len(figure->direct) * vector_len(ray));
+						illumination += list->intens * dot_n_ray / vector_len(ray);
 					if (figure->specular > 0)
 					{
 						reflect = minus_vector(mult_vector(figure->direct, 2 * dot_n_ray), ray); // figure->direct -1.0
@@ -70,15 +77,16 @@ double		find_illumination(t_sdl *map, t_figure *figure)
 						}
 					}
 				}
-				else if (figure->type == 'c')
+				else if (figure->type == CELINDER)
 				{
-					// normalize_vector(&ray);
 					m = dot(map->ray, mult_vector(figure->direct, figure->t)) + dot(minus_vector(map->camera, figure->center), figure->direct);
-					if ((dot_n_ray = dot(minus_vector(minus_vector(point, figure->center), mult_vector(figure->direct, m)), ray)) > 0)
-						illumination += list->intens * dot_n_ray / (vector_len(figure->direct) * vector_len(ray));
+					norm = minus_vector(minus_vector(point, figure->center), mult_vector(figure->direct, m));
+					normalize_vector(&norm);
+					if ((dot_n_ray = dot(norm, ray)) > 0)
+						illumination += list->intens * dot_n_ray / (vector_len(norm) * vector_len(ray));
 					if (figure->specular > 0)
 					{
-						reflect = minus_vector(mult_vector(minus_vector(minus_vector(point, figure->center), mult_vector(figure->direct, m)), 2 * dot_n_ray), ray);
+						reflect = minus_vector(mult_vector(norm, 2 * dot_n_ray), ray);
 						if ((dot_n_ray = dot(reflect, mult_vector(map->ray, -1.0))) > 0)
 						{
 							illumination += list->intens * pow(dot_n_ray / (vector_len(reflect) * vector_len(map->ray)),
@@ -86,14 +94,16 @@ double		find_illumination(t_sdl *map, t_figure *figure)
 						}
 					}
 				}
-				else if (figure->type == 'k')
+				else if (figure->type == CONE)
 				{
 					m = dot(map->ray, mult_vector(figure->direct, figure->t)) + dot(minus_vector(map->camera, figure->center), figure->direct);
-					if ((dot_n_ray = dot(minus_vector(minus_vector(point, figure->center), mult_vector(figure->direct, m * (1 + tan(figure->r) * tan(figure->r)))), ray)) > 0)
-						illumination += list->intens * dot_n_ray / (vector_len(figure->direct) * vector_len(ray));
+					norm = minus_vector(minus_vector(point, figure->center), mult_vector(figure->direct, m * (1 + pow(figure->r, 2))));
+					normalize_vector(&norm);
+					if ((dot_n_ray = dot(norm, ray)) > 0)
+						illumination += list->intens * dot_n_ray / (vector_len(norm) * vector_len(ray));
 					if (figure->specular > 0)
 					{
-						reflect = minus_vector(mult_vector(minus_vector(minus_vector(point, figure->center), mult_vector(figure->direct, m)), 2 * dot_n_ray), ray);
+						reflect = minus_vector(mult_vector(norm, 2 * dot_n_ray), ray);
 						if ((dot_n_ray = dot(reflect, mult_vector(map->ray, -1.0))) > 0)
 						{
 							illumination += list->intens * pow(dot_n_ray / (vector_len(reflect) * vector_len(map->ray)),

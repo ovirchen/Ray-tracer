@@ -22,6 +22,7 @@ SOURCES = main.c \
 		ray_tracing.c \
 		illumination.c \
 		figure_intersection.c \
+		rotate.c \
 
 SRCS = $(addprefix src/, $(SOURCES))
 

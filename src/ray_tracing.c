@@ -12,12 +12,12 @@
 
 #include "../inc/rtv1.h"
 
-static t_figure		*ray_trace_choose_type(t_sdl *map, t_vector ray,
-	t_vector camera, t_figure *list, t_figure *closest)
+static t_figure		*choose_type(t_sdl *map, t_vector ray, t_vector camera,
+	t_figure *list, t_figure *closest)
 {
 	t_quadratic	eq;
 
-	if (list->type == 's')
+	if (list->type == SPHERE)
 	{
 		eq.k1 = dot(ray, ray);
 		eq.k2 = 2 * dot(minus_vector(camera, list->center), ray);
@@ -26,15 +26,15 @@ static t_figure		*ray_trace_choose_type(t_sdl *map, t_vector ray,
 		eq.discriminant = eq.k2 * eq.k2 - 4 * eq.k1 * eq.k3;
 		if (eq.discriminant < 0)
 			return (closest);
-		closest = sphere_intersect(map, list, closest, eq);
+		closest = figure_intersect(map, list, closest, eq);
 	}
-	else if (list->type == 'p')
+	else if (list->type == PLANE)
 	{
 		eq.k1 = dot(minus_vector(camera, list->center), list->direct);
 		eq.k2 = dot(ray, list->direct);
 		closest = plane_intersect(map, list, closest, eq);
 	}
-	else if (list->type == 'c')
+	else if (list->type == CELINDER)
 	{
 		eq.k1 = dot(ray, ray) - pow(dot(ray, list->direct), 2);
 		eq.k2 = 2 * (dot(ray, minus_vector(camera, list->center)) -
@@ -46,21 +46,21 @@ static t_figure		*ray_trace_choose_type(t_sdl *map, t_vector ray,
 		eq.discriminant = eq.k2 * eq.k2 - 4 * eq.k1 * eq.k3;
 		if (eq.discriminant < 0)
 			return (closest);
-		closest = celinder_intersect(map, list, closest, eq);
+		closest = figure_intersect(map, list, closest, eq);
 	}
-	else if (list->type == 'k')
+	else if (list->type == CONE)
 	{
-		eq.k1 = dot(ray, ray) - (1 + pow(tan(list->r), 2)) * pow(dot(ray, list->direct), 2);
-		eq.k2 = 2 * (dot(ray, minus_vector(camera, list->center)) - (1 + pow(tan(list->r), 2)) *
+		eq.k1 = dot(ray, ray) - (1 + pow(list->r, 2)) * pow(dot(ray, list->direct), 2);
+		eq.k2 = 2 * (dot(ray, minus_vector(camera, list->center)) - (1 + pow(list->r, 2)) *
 			dot(ray, list->direct) * dot(minus_vector(camera, list->center), list->direct));
 
 		eq.k3 = dot(minus_vector(camera, list->center), minus_vector(camera, list->center))
-			- (1 + pow(tan(list->r), 2)) * pow(dot(minus_vector(camera, list->center), list->direct), 2);
+			- (1 + pow(list->r, 2)) * pow(dot(minus_vector(camera, list->center), list->direct), 2);
 
 		eq.discriminant = eq.k2 * eq.k2 - 4 * eq.k1 * eq.k3;
 		if (eq.discriminant < 0)
 			return (closest);
-		closest = celinder_intersect(map, list, closest, eq);
+		closest = figure_intersect(map, list, closest, eq);
 	}
 	return (closest);
 }
@@ -74,7 +74,7 @@ t_figure			*ray_tracing(t_sdl *map, t_vector ray, t_vector camera)
 	list = map->figure;
 	while (list != NULL)
 	{
-		closest = ray_trace_choose_type(map, ray, camera, list, closest);
+		closest = choose_type(map, ray, camera, list, closest);
 		list = list->next;
 	}
 	return (closest);
