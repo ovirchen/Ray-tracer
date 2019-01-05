@@ -62,7 +62,7 @@ void			rotate(t_sdl *map, t_vector *v)
 	fill_vector(v, res.x, res.y, res.z);
 }
 
-void		rotate_all(t_sdl *map)
+void			rotate_all(t_sdl *map)
 {
 	t_figure	*figure;
 	t_light		*light;

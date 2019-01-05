@@ -12,72 +12,18 @@
 
 #include "../inc/rtv1.h"
 
-static t_figure		*choose_type(t_sdl *map, t_vector ray, t_vector camera,
-	t_figure *list, t_figure *closest)
-{
-	t_quadratic	eq;
-
-	if (list->type == SPHERE)
-	{
-		eq.k1 = dot(ray, ray);
-		eq.k2 = 2 * dot(minus_vector(camera, list->center), ray);
-		eq.k3 = dot(minus_vector(camera, list->center),
-			minus_vector(camera, list->center)) - list->r * list->r;
-		eq.discriminant = eq.k2 * eq.k2 - 4 * eq.k1 * eq.k3;
-		if (eq.discriminant < 0)
-			return (closest);
-		closest = figure_intersect(map, list, closest, eq);
-	}
-	else if (list->type == PLANE)
-	{
-		eq.k1 = dot(minus_vector(camera, list->center), list->direct);
-		eq.k2 = dot(ray, list->direct);
-		closest = plane_intersect(map, list, closest, eq);
-	}
-	else if (list->type == CELINDER)
-	{
-		eq.k1 = dot(ray, ray) - pow(dot(ray, list->direct), 2);
-		eq.k2 = 2 * (dot(ray, minus_vector(camera, list->center)) -
-			dot(ray, list->direct) * dot(minus_vector(camera, list->center), list->direct));
-
-		eq.k3 = dot(minus_vector(camera, list->center), minus_vector(camera, list->center))
-			- pow(dot(minus_vector(camera, list->center), list->direct), 2) - list->r * list->r;
-
-		eq.discriminant = eq.k2 * eq.k2 - 4 * eq.k1 * eq.k3;
-		if (eq.discriminant < 0)
-			return (closest);
-		closest = figure_intersect(map, list, closest, eq);
-	}
-	else if (list->type == CONE)
-	{
-		eq.k1 = dot(ray, ray) - (1 + pow(list->r, 2)) * pow(dot(ray, list->direct), 2);
-		eq.k2 = 2 * (dot(ray, minus_vector(camera, list->center)) - (1 + pow(list->r, 2)) *
-			dot(ray, list->direct) * dot(minus_vector(camera, list->center), list->direct));
-
-		eq.k3 = dot(minus_vector(camera, list->center), minus_vector(camera, list->center))
-			- (1 + pow(list->r, 2)) * pow(dot(minus_vector(camera, list->center), list->direct), 2);
-
-		eq.discriminant = eq.k2 * eq.k2 - 4 * eq.k1 * eq.k3;
-		if (eq.discriminant < 0)
-			return (closest);
-		closest = figure_intersect(map, list, closest, eq);
-	}
-	return (closest);
-}
-
 t_figure			*ray_tracing(t_sdl *map, t_vector ray, t_vector camera)
 {
 	t_figure	*list;
-	t_figure	*closest;
 
-	closest = NULL;
+	map->closest = NULL;
 	list = map->figure;
 	while (list != NULL)
 	{
-		closest = choose_type(map, ray, camera, list, closest);
+		choose_type(map, ray, camera, list);
 		list = list->next;
 	}
-	return (closest);
+	return (map->closest);
 }
 
 unsigned int		check_figure(t_sdl *map)

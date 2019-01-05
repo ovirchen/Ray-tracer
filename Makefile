@@ -6,7 +6,7 @@
 #    By: ovirchen <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/10/25 12:45:37 by ovirchen          #+#    #+#              #
-#    Updated: 2018/05/21 19:02:53 by atlekbai         ###   ########.fr        #
+#    Updated: 2018/05/21 19:02:53 by ovirchen         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,12 +15,17 @@ NAME = RTv1
 SOURCES = main.c \
 		sdl.c \
 		scene_1.c \
+		scene_2.c \
+		scene_3.c \
+		sceneee_3.c \
 		add.c \
 		fill.c \
 		draw.c \
 		calc_vector.c \
 		ray_tracing.c \
+		figure_ray_tracing.c \
 		illumination.c \
+		figure_illumination.c \
 		figure_intersection.c \
 		rotate.c \
 

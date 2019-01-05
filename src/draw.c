@@ -12,7 +12,7 @@
 
 #include "../inc/rtv1.h"
 
-void	draw(t_sdl *map)
+void		draw(t_sdl *map)
 {
 	int i;
 	int j;
@@ -34,8 +34,26 @@ void	draw(t_sdl *map)
 		}
 	}
 	fill_color(&(map->angle), 0, 0, 0);
-	// SDL_RenderClear(map->render);
 	SDL_UpdateTexture(map->texture, NULL, map->image, WIN_X * 4);
 	SDL_RenderCopy(map->render, map->texture, NULL, NULL);
 	SDL_RenderPresent(map->render);
+}
+
+static int	check_color(int color)
+{
+	if (color < 0)
+		color = 0;
+	else if (color > 255)
+		color = 255;
+	return (color);
+}
+
+t_color		color_correction(t_figure *figure, double illumination)
+{
+	t_color color;
+
+	color.r = check_color((int)(figure->color.r * illumination));
+	color.g = check_color((int)(figure->color.g * illumination));
+	color.b = check_color((int)(figure->color.b * illumination));
+	return (color);
 }
